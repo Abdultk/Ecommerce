@@ -1,4 +1,5 @@
-# Render Blueprint — API, worker, Postgres and Key Value (Redis) for Hearth & Pan.
+# Render Blueprint — API, worker, Postgres and Key Value (Redis) for PAISLEY art.
+# The *.hearthandpan.com hostnames below are placeholders: replace them with the real domain.
 # Apply via Render Dashboard -> New -> Blueprint. Plan names change occasionally; check the
 # current catalog before applying. Secrets are NOT in this file: they live in the env group
 # `hp-api-secrets` (created by this blueprint with sync: false values you fill in the dashboard).
@@ -17,9 +18,11 @@ envVarGroups:
         sync: false
       - key: COOKIE_SECRET
         sync: false
-      - key: STRIPE_SECRET_KEY
+      - key: AMWAL_MERCHANT_ID
         sync: false
-      - key: STRIPE_WEBHOOK_SECRET
+      - key: AMWAL_TERMINAL_ID
+        sync: false
+      - key: AMWAL_SECURE_KEY
         sync: false
       - key: R2_ACCOUNT_ID
         sync: false
@@ -51,8 +54,10 @@ envVarGroups:
         value: info
       - key: RESERVATION_TTL_MINUTES
         value: "15"
-      - key: PAYMENTS_PROVIDER
-        value: stripe
+      - key: PAYMENT_PROVIDER
+        value: amwal
+      - key: AMWAL_ENV
+        value: uat # switch to production once Amwal approves the live merchant
       - key: IMAGE_STORAGE
         value: r2
       - key: R2_BUCKET
@@ -66,7 +71,7 @@ envVarGroups:
       - key: CDN_BASE_URL
         value: https://cdn.hearthandpan.com
       - key: MAIL_FROM
-        value: "Hearth & Pan <orders@hearthandpan.com>"
+        value: "PAISLEY art <orders@hearthandpan.com>"
       - key: NODE_VERSION
         value: "22"
 
@@ -75,7 +80,7 @@ services:
     name: hp-api
     runtime: node
     region: oregon
-    plan: standard
+    plan: starter # launch size; raise to standard + autoscaling once traffic needs it
     # Build only the API and its workspace dependencies; `build` depends on `generate` (Prisma client).
     # --prod=false: NODE_ENV=production would otherwise skip the build tooling (turbo, tsup, prisma CLI).
     # Start commands call node directly so pnpm is not needed at runtime.
@@ -87,11 +92,6 @@ services:
     # backend adds a dependency-free liveness route (see docs/runbooks/monitoring.md).
     healthCheckPath: /api/v1/health
     autoDeploy: false # deploys are triggered after CI passes (deploy hook)
-    scaling:
-      minInstances: 2
-      maxInstances: 6
-      targetCPUPercent: 70
-      targetMemoryPercent: 80
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -141,6 +141,6 @@ databases:
     databaseName: hearthandpan
     user: hp
     region: oregon
-    plan: pro-4gb # paid plan: daily backups + point-in-time recovery
+    plan: basic-1gb # launch size; move to a pro plan for point-in-time recovery before real traffic
     postgresMajorVersion: "16"
     ipAllowList: [] # private network only

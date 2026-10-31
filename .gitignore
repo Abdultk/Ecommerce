@@ -24,3 +24,6 @@ e2e/.apps/
 # Product photo sources and dev image store (large; originals are not committed)
 albaleed images/
 apps/api/.dev-cdn/
+
+# Generated deploy secrets (never commit)
+.deploy-secrets.local
