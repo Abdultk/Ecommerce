@@ -1,0 +1,12 @@
+# The example env file is committed (the root .gitignore ignores .env.*)
+!.env.e2e.example
+.env.e2e
+
+# Snapshot builds of the Next apps, per-run state and reports
+.apps/
+.auth/
+test-results/
+playwright-report/
+zap/reports/
+load/results/
+zap/zap.yaml

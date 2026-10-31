@@ -1,0 +1,23 @@
+{
+  "name": "@hp/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:a11y": "playwright test --project=a11y",
+    "report": "playwright show-report",
+    "load": "node scripts/run-k6.mjs",
+    "zap": "node scripts/run-zap.mjs",
+    "servers": "node scripts/servers.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.0",
+    "otplib": "^12.0.1",
+    "typescript": "^5.7.2"
+  }
+}

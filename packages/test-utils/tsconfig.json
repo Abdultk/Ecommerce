@@ -1,0 +1,8 @@
+{
+  "extends": "@hp/config/tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "lib": ["ES2023", "DOM"]
+  },
+  "include": ["src", "test", "*.config.ts"]
+}

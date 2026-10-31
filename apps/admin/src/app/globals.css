@@ -1,0 +1,235 @@
+@import "tailwindcss";
+
+/*
+ * PAISLEY art Admin — "back of house" ledger aesthetic.
+ * Cast-iron sidebar, warm paper work surface, ember accent used for state
+ * (focus, active, primary action) rather than decoration. Serif display type
+ * for headings, system sans for dense data, mono for SKUs and codes.
+ * Text/background pairs below are chosen for WCAG 2.2 AA (>= 4.5:1).
+ */
+@theme {
+  --font-sans:
+    "Segoe UI Variable Text", "Segoe UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Iowan Old Style", "Charter", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --font-mono: "Cascadia Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --color-ink-950: #14110f;
+  --color-ink-900: #1f1a17;
+  --color-ink-800: #2d2621;
+  --color-ink-700: #3d342e;
+  --color-ink-400: #958a80;
+  --color-ink-300: #bdb2a7;
+  --color-ink-200: #ddd4ca;
+
+  --color-paper: #f5f2ec;
+  --color-surface: #ffffff;
+  --color-line: #e2dbd1;
+  --color-line-strong: #cfc6ba;
+  --color-muted: #665d55;
+
+  --color-ember-400: #ec8f62;
+  --color-ember-500: #d9622f;
+  --color-ember-600: #b4441b;
+  --color-ember-700: #943513;
+  --color-ember-50: #fcf0ea;
+
+  --color-ok-50: #e7f3ea;
+  --color-ok-800: #1d5430;
+  --color-warn-50: #fdf2d6;
+  --color-warn-300: #e9c46a;
+  --color-warn-900: #6b4100;
+  --color-danger-50: #fcebea;
+  --color-danger-200: #f2c2be;
+  --color-danger-700: #a42a22;
+  --color-danger-800: #85211b;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-paper font-sans text-[0.9375rem] text-ink-900 antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ember-600);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-[0.6875rem] font-semibold tracking-[0.16em] uppercase;
+  }
+
+  .skip-link {
+    @apply sr-only;
+  }
+  .skip-link:focus {
+    @apply not-sr-only fixed top-2 left-2 z-[60] rounded bg-surface px-3 py-2 text-sm font-medium shadow;
+  }
+
+  .panel {
+    @apply rounded-lg border border-line bg-surface shadow-[0_1px_0_rgb(20_17_15/0.04),0_8px_24px_-16px_rgb(20_17_15/0.25)];
+  }
+  .placeholder-panel {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent 0 10px,
+      rgb(20 17 15 / 0.025) 10px 11px
+    );
+  }
+
+  /* Buttons: 36px min target, a pressed state, and a visible focus ring. */
+  .btn {
+    @apply inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-[background-color,border-color,color,transform] duration-150 select-none;
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .btn:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+  .btn-primary {
+    @apply border-ember-700 bg-ember-600 text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.15)];
+  }
+  .btn-primary:hover:not(:disabled) {
+    @apply bg-ember-700;
+  }
+  .btn-secondary {
+    @apply border-ink-800 bg-ink-800 text-white;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    @apply bg-ink-950;
+  }
+  .btn-quiet {
+    @apply border-line-strong bg-surface text-ink-900;
+  }
+  .btn-quiet:hover:not(:disabled) {
+    @apply border-ink-400 bg-paper;
+  }
+  .btn-link {
+    @apply border-transparent bg-transparent px-1 text-ember-700 underline decoration-ember-700/40 underline-offset-4;
+  }
+  .btn-link:hover {
+    @apply decoration-ember-700;
+  }
+
+  /* Form fields */
+  .field-label {
+    @apply mb-1 block text-xs font-semibold text-ink-800;
+  }
+  .field {
+    @apply block min-h-10 w-full rounded-md border border-line-strong bg-surface px-3 text-ink-950 transition-colors placeholder:text-ink-400;
+  }
+  .field:hover {
+    @apply border-ink-400;
+  }
+  .field:focus-visible {
+    @apply border-ember-600;
+    outline-offset: 0;
+  }
+  .field[aria-invalid="true"] {
+    @apply border-danger-700;
+  }
+  .field-compact {
+    @apply min-h-9 text-sm;
+  }
+  .check-label {
+    @apply inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-line-strong bg-surface px-3 text-sm font-medium hover:border-ink-400;
+  }
+  .check {
+    @apply size-4 accent-ember-600;
+  }
+  .error-text {
+    @apply rounded-md border border-danger-200 bg-danger-50 px-3 py-2 text-sm font-medium text-danger-800;
+  }
+  .notice {
+    @apply rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink-800;
+  }
+
+  /* Badges always carry text; colour is a secondary cue. */
+  .badge {
+    @apply inline-flex items-center rounded border px-1.5 py-px text-[0.6875rem] font-semibold tracking-wide whitespace-nowrap uppercase;
+  }
+  .badge-ok {
+    @apply border-ok-800/20 bg-ok-50 text-ok-800;
+  }
+  .badge-neutral {
+    @apply border-ink-700/20 bg-paper text-ink-800;
+  }
+  .badge-muted {
+    @apply border-line-strong bg-transparent text-muted;
+  }
+  .badge-warn {
+    @apply border-warn-300 bg-warn-50 text-warn-900;
+  }
+  .badge-warn::before {
+    content: "▲";
+    @apply mr-1 text-[0.55rem];
+  }
+
+  /* Dense data table */
+  .data-table {
+    @apply w-full border-collapse text-sm;
+  }
+  .data-table th {
+    @apply sticky top-0 border-b border-line-strong bg-paper px-3 py-2 text-left text-[0.6875rem] font-semibold tracking-[0.08em] whitespace-nowrap text-ink-800 uppercase;
+  }
+  .data-table td {
+    @apply border-b border-line px-3 py-2 align-middle;
+  }
+  .data-table tbody tr {
+    @apply transition-colors;
+  }
+  .data-table tbody tr:hover td {
+    @apply bg-ember-50/60;
+  }
+  .data-table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+  .sort-button {
+    @apply -mx-1 inline-flex items-center gap-1 rounded px-1 py-0.5 uppercase hover:bg-surface hover:text-ink-950;
+    letter-spacing: inherit;
+  }
+  .sort-indicator {
+    @apply text-[0.6rem] text-ink-400;
+  }
+  .sort-indicator[data-sorted] {
+    @apply text-ember-600;
+  }
+
+  .nav-link {
+    @apply transition-colors duration-150;
+  }
+  .nav-link:focus-visible {
+    outline-color: var(--color-ember-400);
+  }
+
+  .tile {
+    @apply relative transition-colors;
+  }
+  .tile:hover {
+    @apply bg-ember-50/50;
+  }
+  .tile::after {
+    content: "→";
+    @apply absolute right-4 bottom-3 text-ember-600 opacity-0 transition-[opacity,transform] duration-150;
+    transform: translateX(-4px);
+  }
+  .tile:hover::after,
+  .tile:focus-visible::after {
+    @apply opacity-100;
+    transform: translateX(0);
+  }
+
+}

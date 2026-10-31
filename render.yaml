@@ -1,0 +1,146 @@
+# Render Blueprint — API, worker, Postgres and Key Value (Redis) for Hearth & Pan.
+# Apply via Render Dashboard -> New -> Blueprint. Plan names change occasionally; check the
+# current catalog before applying. Secrets are NOT in this file: they live in the env group
+# `hp-api-secrets` (created by this blueprint with sync: false values you fill in the dashboard).
+# Staging: apply the same blueprint in a separate Render project/environment with test-mode keys.
+
+envVarGroups:
+  - name: hp-api-secrets
+    envVars:
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: REFRESH_TOKEN_PEPPER
+        sync: false
+      - key: ORDER_LOOKUP_SECRET
+        sync: false
+      - key: TOTP_ENCRYPTION_KEY
+        sync: false
+      - key: COOKIE_SECRET
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      # Resend over SMTP: smtps://resend:<RESEND_API_KEY>@smtp.resend.com:465
+      - key: SMTP_URL
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      # Shared with the storefront (same value) so SSR calls are rate-limited per shopper (D-04).
+      - key: INTERNAL_API_TOKEN
+        sync: false
+  - name: hp-api-config
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY_HOPS
+        value: "2" # Cloudflare (proxied) -> Render
+      - key: WEB_ORIGIN
+        value: https://www.hearthandpan.com
+      - key: ADMIN_ORIGIN
+        value: https://admin.hearthandpan.com
+      - key: RATE_LIMIT_STORE
+        value: redis
+      - key: LOG_LEVEL
+        value: info
+      - key: RESERVATION_TTL_MINUTES
+        value: "15"
+      - key: PAYMENTS_PROVIDER
+        value: stripe
+      - key: IMAGE_STORAGE
+        value: r2
+      - key: R2_BUCKET
+        value: hp-product-images
+      - key: REPORT_STORAGE
+        value: r2
+      - key: R2_REPORTS_BUCKET
+        value: hp-reports # private bucket; add a 7-day lifecycle rule on reports/
+      - key: API_PUBLIC_URL
+        value: https://api.hearthandpan.com
+      - key: CDN_BASE_URL
+        value: https://cdn.hearthandpan.com
+      - key: MAIL_FROM
+        value: "Hearth & Pan <orders@hearthandpan.com>"
+      - key: NODE_VERSION
+        value: "22"
+
+services:
+  - type: web
+    name: hp-api
+    runtime: node
+    region: oregon
+    plan: standard
+    # Build only the API and its workspace dependencies; `build` depends on `generate` (Prisma client).
+    # --prod=false: NODE_ENV=production would otherwise skip the build tooling (turbo, tsup, prisma CLI).
+    # Start commands call node directly so pnpm is not needed at runtime.
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm turbo build --filter=@hp/api...
+    # Additive (expand -> migrate -> contract) migrations only, so a rollback still runs on the new schema.
+    preDeployCommand: cd apps/api && ./node_modules/.bin/prisma migrate deploy
+    startCommand: cd apps/api && node dist/server.js
+    # Liveness + readiness today (checks DB and Redis). Switch to /api/v1/health/live once the
+    # backend adds a dependency-free liveness route (see docs/runbooks/monitoring.md).
+    healthCheckPath: /api/v1/health
+    autoDeploy: false # deploys are triggered after CI passes (deploy hook)
+    scaling:
+      minInstances: 2
+      maxInstances: 6
+      targetCPUPercent: 70
+      targetMemoryPercent: 80
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hp-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: hp-redis
+          property: connectionString
+      - fromGroup: hp-api-config
+      - fromGroup: hp-api-secrets
+
+  - type: worker
+    name: hp-worker
+    runtime: node
+    region: oregon
+    plan: starter
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm turbo build --filter=@hp/api...
+    # Email delivery, reservation release (every minute), guest-cart purge (hourly) via BullMQ.
+    # Exactly one instance: repeatable jobs are deduplicated, but one consumer keeps ops simple.
+    startCommand: cd apps/api && node dist/worker.js
+    autoDeploy: false
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hp-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: hp-redis
+          property: connectionString
+      - fromGroup: hp-api-config
+      - fromGroup: hp-api-secrets
+
+  - type: keyvalue
+    name: hp-redis
+    region: oregon
+    plan: starter
+    # BullMQ requires noeviction: evicted job keys silently lose emails and scheduled jobs.
+    maxmemoryPolicy: noeviction
+    ipAllowList: [] # private network only
+
+databases:
+  - name: hp-db
+    databaseName: hearthandpan
+    user: hp
+    region: oregon
+    plan: pro-4gb # paid plan: daily backups + point-in-time recovery
+    postgresMajorVersion: "16"
+    ipAllowList: [] # private network only

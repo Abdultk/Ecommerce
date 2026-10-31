@@ -1,0 +1,28 @@
+{
+  "name": "@hp/test-utils",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Contract-valid factories, sample kitchen catalog and MSW handlers shared by every app's tests and dev mocks.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./msw": "./src/msw/handlers.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@hp/contracts": "workspace:*",
+    "msw": "^2.7.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@hp/config": "workspace:*",
+    "@vitest/coverage-v8": "^2.1.8",
+    "eslint": "^9.39.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

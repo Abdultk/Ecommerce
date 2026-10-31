@@ -1,0 +1,44 @@
+# Local development services. Credentials here are for local use only.
+# Host ports default to 5442/6389/8035/1035 so they do not clash with other local stacks.
+name: hearth-and-pan
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: hp
+      POSTGRES_PASSWORD: hp_local_dev_only
+      POSTGRES_DB: hearthandpan
+    ports: ["127.0.0.1:${HP_POSTGRES_PORT:-5442}:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hp -d hearthandpan"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["127.0.0.1:${HP_REDIS_PORT:-6389}:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    ports:
+      - "127.0.0.1:${HP_MAIL_UI_PORT:-8035}:8025" # web UI for dev emails
+      - "127.0.0.1:${HP_SMTP_PORT:-1035}:1025" # SMTP
+
+  # Forwards Stripe test-mode webhooks to the local API. Start it with:
+  #   docker compose -f infra/docker-compose.yml --profile stripe up -d
+  stripe-cli:
+    image: stripe/stripe-cli:v1.22.0
+    profiles: [stripe]
+    command: listen --forward-to host.docker.internal:4000/api/v1/webhooks/stripe
+    environment:
+      STRIPE_API_KEY: ${STRIPE_SECRET_KEY:-}
+    extra_hosts: ["host.docker.internal:host-gateway"]
+
+volumes:
+  pgdata: {}

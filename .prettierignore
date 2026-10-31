@@ -1,0 +1,15 @@
+pnpm-lock.yaml
+**/dist
+**/coverage
+**/.turbo
+**/.next
+# Copied verbatim from the published blueprint
+docs/BLUEPRINT.md
+# E2E per-run output (gitignored in e2e/.gitignore)
+e2e/.apps
+e2e/.auth
+e2e/test-results
+e2e/playwright-report
+e2e/zap/reports
+e2e/zap/zap.yaml
+e2e/load/results

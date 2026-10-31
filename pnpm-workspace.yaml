@@ -1,0 +1,33 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  # Playwright E2E, axe, k6 and ZAP (needs running servers, so it has no `test` script)
+  - "e2e"
+
+# pnpm only runs dependency install scripts that are listed here.
+allowBuilds:
+  # esbuild powers tsup and Vitest; its install script fetches the platform binary
+  esbuild: true
+  # Prisma downloads its query engine and generates the client on install
+  "@prisma/client": true
+  "@prisma/engines": true
+  prisma: true
+  # argon2 installs a prebuilt native binary for password hashing
+  argon2: true
+  # msw's postinstall only copies the browser worker; apps run `msw init` themselves
+  msw: false
+  # optional native accelerator for BullMQ serialization; the pure-JS fallback is fine
+  msgpackr-extract: false
+  # next-intl's optional message-extraction and watch tooling, which this app does not use
+  "@parcel/watcher": false
+  "@swc/core": false
+
+# Force patched versions of transitive dependencies flagged by `pnpm audit`.
+# Remove an entry once the parent package ships the fix itself.
+overrides:
+  # Next.js 15 pins postcss 8.4.x (source-map path traversal / file read advisories)
+  postcss: ">=8.5.23"
+  # Prisma 6 config tooling (stack exhaustion on recursive merge)
+  deepmerge-ts: ">=8.0.0"
+  # Express 5.3 pins body-parser 2.3 (DoS via trailing bytes after a request body)
+  body-parser: ">=2.4.0"

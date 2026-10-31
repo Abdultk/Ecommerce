@@ -1,0 +1,708 @@
+{
+  "Common": {
+    "skipToContent": "Skip to content"
+  },
+  "Header": {
+    "deliveryAcrossOman": "Delivery across Oman",
+    "deliveryDays": "Delivery across Oman in 2–4 business days",
+    "welcomeCoupon": "Use code WELCOME10 for 10% off your first order",
+    "logoAria": "PAISLEY art home",
+    "freeShippingOver": "Free shipping over {amount}",
+    "nextAnnouncement": "Next announcement",
+    "previousAnnouncement": "Previous announcement"
+  },
+  "Home": {
+    "heroLine1": "Set the table",
+    "heroLine2": "with something special.",
+    "heroCopy": "Cake stands, tiered stands, dallahs, vases and tableware for the Omani table. Every product page shows what we know about the piece.",
+    "explore": "Explore the Collection",
+    "howWeChoose": "How we choose",
+    "metaTitle": "PAISLEY art — Serveware and tableware for the Omani home",
+    "metaDescription": "Cake stands, tiered stands, dallahs and carafes, vases and tableware, delivered across Oman.",
+    "trustLabel": "Shopping with us",
+    "pricesIn": "Prices in {name}",
+    "categoriesHeading": "Shop by collection",
+    "collections": "{count, plural, one {{n} collection} other {{n} collections}}",
+    "bestSellers": "Best sellers",
+    "viewAllBest": "View all best sellers",
+    "bestEmpty": "Best sellers are warming up. Check back in a moment.",
+    "newArrivals": "New arrivals",
+    "seeNew": "See what is new",
+    "newEmpty": "New arrivals will appear here.",
+    "spotlightHeading": "Our most popular piece",
+    "by": "By {brand}",
+    "from": "From {price}",
+    "details": "See the details",
+    "craftHeading": "What we mean by craft",
+    "craftIntro": "A good serving piece earns its place at the table for years. We try to make that easy to judge before you buy.",
+    "craft": {
+      "materials": {
+        "title": "Materials, stated",
+        "text": "Product pages list the material and care details we have confirmed, so you know what you are buying before it arrives."
+      },
+      "limits": {
+        "title": "Details, stated",
+        "text": "Size, care and other details are listed on the page wherever we have them."
+      },
+      "priced": {
+        "title": "Priced plainly",
+        "text": "Prices are in Omani rial. VAT and delivery are shown before you pay, and you can pay by card or bank transfer."
+      }
+    },
+    "purposeHeading": "Browse every collection"
+  },
+  "Nav": {
+    "label": "Shop by category",
+    "shopAll": "Shop all",
+    "shopAllIn": "Shop all {category}"
+  },
+  "Menu": {
+    "open": "Open menu",
+    "close": "Close menu",
+    "label": "Menu"
+  },
+  "Search": {
+    "label": "Search products",
+    "placeholder": "Search the shop",
+    "submit": "Search",
+    "suggestions": "Suggested products",
+    "seeAll": "See all results for “{query}”",
+    "noMatches": "No matches for “{query}”. Press Enter to search the whole shop."
+  },
+  "Account": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signingOut": "Signing out…",
+    "account": "Account",
+    "greeting": "Hi, {name}",
+    "title": "Your account",
+    "toSignIn": "Taking you to sign in…",
+    "checking": "Checking your session…",
+    "nav": {
+      "orders": "Orders",
+      "addresses": "Addresses",
+      "wishlist": "Wishlist",
+      "settings": "Settings"
+    },
+    "settingsTitle": "Settings",
+    "tabs": {
+      "profile": "Profile",
+      "preferences": "Preferences",
+      "security": "Security",
+      "privacy": "Privacy"
+    },
+    "ordersHeading": "Your orders",
+    "orderDetails": "Order details",
+    "yourOrder": "Your order",
+    "allOrders": "← All orders",
+    "profile": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "verified": "(verified)",
+      "unverified": "(not verified yet)",
+      "saved": "Saved. Your name is updated.",
+      "saving": "Saving…",
+      "save": "Save changes"
+    },
+    "prefs": {
+      "loading": "Loading your preferences…",
+      "contact": "Contact",
+      "mobile": "Mobile number",
+      "phoneHelp": "An Omani number, e.g. 9123 4567. Used to prefill checkout.",
+      "checkoutDefaults": "Checkout defaults",
+      "preferredPayment": "Preferred payment",
+      "paymentHelp": "Selected for you at checkout. You can still change it.",
+      "preferredDelivery": "Preferred delivery",
+      "deliveryHelp": "Selected for you when delivery options appear.",
+      "askEach": "Ask me each time",
+      "card": "Card",
+      "bank_transfer": "Bank transfer",
+      "standard": "Standard delivery",
+      "express": "Express delivery",
+      "email": "Email",
+      "shipUpdates": "Tell me when my order ships",
+      "shipUpdatesHelp": "Receipts and payment emails are always sent.",
+      "marketing": "News and offers",
+      "marketingHelp": "Off until you turn it on. You can change your mind here at any time.",
+      "saved": "Saved. Your preferences are updated.",
+      "saving": "Saving…",
+      "save": "Save preferences"
+    },
+    "security": {
+      "password": "Password",
+      "current": "Current password",
+      "new": "New password",
+      "newHint": "Your other devices are signed out when you change it.",
+      "changed": "Password changed. Your other devices were signed out.",
+      "changing": "Changing…",
+      "change": "Change password",
+      "devices": "Where you're signed in",
+      "devicesLoading": "Loading your devices…",
+      "thisDevice": "This device",
+      "signedIn": "Signed in {when}",
+      "signOutDevice": "Sign out {device}",
+      "signOutOthers": "Sign out all other devices",
+      "onlyThis": "You're only signed in on this device."
+    },
+    "privacy": {
+      "yourData": "Your data",
+      "exportBody": "Download a copy of your account, addresses, saved items, orders and reviews as a JSON file.",
+      "preparing": "Preparing…",
+      "download": "Download my data",
+      "deleteHeading": "Delete your account",
+      "deleteBody": "This removes your profile, addresses, saved items, reviews and sign-ins for good. Orders you have placed are kept for fulfilment and our records, but are no longer linked to you.",
+      "yourPassword": "Your password",
+      "typeDelete": "Type DELETE to confirm",
+      "deleting": "Deleting…",
+      "delete": "Delete my account"
+    },
+    "addresses": {
+      "heading": "Addresses",
+      "none": "No saved addresses yet. Add one to check out faster.",
+      "add": "Add an address",
+      "default": "Default",
+      "outdated": "This address is missing Omani details (governorate or phone). Edit it first.",
+      "confirmDelete": "Delete this address?",
+      "yesDelete": "Yes, delete",
+      "keep": "Keep it",
+      "edit": "Edit",
+      "delete": "Delete",
+      "makeDefault": "Make default",
+      "editorEdit": "Edit address",
+      "editorNew": "New address",
+      "useDefault": "Use as my default address",
+      "save": "Save address",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    },
+    "orders": {
+      "none": "No orders yet.",
+      "start": "Start shopping",
+      "items": "{count, plural, one {{n} item} other {{n} items}}",
+      "pages": "Order pages",
+      "prevPage": "Previous page",
+      "nextPage": "Next page",
+      "page": "Page {page} of {total}",
+      "itemsLabel": "Items in this order",
+      "qtyEach": "{variant} · Qty {quantity} × {price}",
+      "linkProblem": "Check the link in your email, or contact us with your order number.",
+      "viewInAccount": "View it in your account",
+      "backToOrders": "Back to orders",
+      "cancelledNote": "Order cancelled. Any payment is refunded to your original payment method.",
+      "cancel": "Cancel order",
+      "cancelWarning": "Cancelling can't be undone. If you've paid, we refund the full amount.",
+      "typeToConfirm": "Type {number} to confirm",
+      "cancelling": "Cancelling…",
+      "yesCancel": "Yes, cancel this order",
+      "keepOrder": "Keep my order",
+      "toSee": "To see this order, open the link in your order email, or <signin>sign in</signin> if you checked out with an account."
+    },
+    "wishlist": {
+      "heading": "Wishlist",
+      "empty": "Nothing saved yet.",
+      "emptyHint": "Tap the heart on any product to keep it here."
+    }
+  },
+  "Footer": {
+    "tagline": "Serveware and tableware for the Omani home. Delivered across Oman.",
+    "categoriesLabel": "Footer categories",
+    "shop": "Shop",
+    "helpLabel": "Help",
+    "yourAccount": "Your account",
+    "cart": "Your cart",
+    "wishlist": "Wishlist",
+    "signIn": "Sign in",
+    "createAccount": "Create an account",
+    "exploreLabel": "Explore",
+    "shopAll": "Shop all",
+    "bestSellers": "Best sellers",
+    "newArrivals": "New arrivals",
+    "prices": "© {year} PAISLEY art. Prices in {name} ({code}).",
+    "currencyName": "{code, select, OMR {Omani rial} other {{code}}}",
+    "photoCredits": "Photo credits"
+  },
+  "Cart": {
+    "loading": "Loading your cart…",
+    "tryAgain": "Try again",
+    "emptyTitle": "Your cart is empty.",
+    "emptyBody": "Find something for your table.",
+    "browse": "Browse the shop",
+    "itemsLabel": "Items in your cart",
+    "summaryLabel": "Order summary",
+    "viewCart": "View cart",
+    "checkout": "Checkout",
+    "drawerTitle": "Your cart",
+    "pageKicker": "Almost yours",
+    "closeCart": "Close cart",
+    "buttonLabel": "Cart, {count, plural, one {{count} item} other {{count} items}}",
+    "each": "{price} each",
+    "onlyLeft": "Only {count} left",
+    "quantityOf": "Quantity of {name}",
+    "decrease": "Decrease quantity of {name}",
+    "increase": "Increase quantity of {name}",
+    "remove": "Remove",
+    "removeFromCart": "Remove {name} from your cart",
+    "qty": "Qty {count}",
+    "summary": {
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "discountWithCode": "Discount ({code})",
+      "shipping": "Shipping",
+      "free": "Free",
+      "calculatedAtCheckout": "Calculated at checkout",
+      "vat": "VAT",
+      "total": "Total"
+    },
+    "coupon": {
+      "label": "Discount code",
+      "applied": "Code <mono>{code}</mono> applied",
+      "removeCode": "Remove code {code}",
+      "remove": "Remove",
+      "removing": "Removing…",
+      "apply": "Apply",
+      "applying": "Applying…",
+      "announceApplied": "{code} applied.",
+      "announceRemoved": "Code removed.",
+      "applyFallback": "We couldn't apply that code. Please try again.",
+      "removeFallback": "We couldn't remove that code. Please try again."
+    },
+    "freeShipping": {
+      "unlocked": "Complimentary White-Glove Delivery unlocked!",
+      "remaining": "Add {amount} more for complimentary delivery across Oman",
+      "progressAria": "Free shipping progress: {percent}%"
+    },
+    "giftOption": {
+      "title": "Complimentary Heirloom Gift Wrap",
+      "subtitle": "Packaged in an embossed wooden gift box with a handwritten note",
+      "noteLabel": "Personal Gift Message (Optional)",
+      "notePlaceholder": "Write your warm wishes...",
+      "noteSaved": "Gift note saved"
+    },
+    "expressCheckout": {
+      "methods": "Guaranteed safe checkout via Card, Apple Pay, or Bank Transfer"
+    },
+    "recommendationsHeading": "You might also like",
+    "recommendationsLink": "Explore all best sellers"
+  },
+  "Governorates": {
+    "MA": "Muscat",
+    "ZU": "Dhofar",
+    "MU": "Musandam",
+    "BU": "Al Buraimi",
+    "DA": "Ad Dakhiliyah",
+    "BS": "North Al Batinah",
+    "BJ": "South Al Batinah",
+    "SS": "North Ash Sharqiyah",
+    "SJ": "South Ash Sharqiyah",
+    "ZA": "Ad Dhahirah",
+    "WU": "Al Wusta"
+  },
+  "BankTransfer": {
+    "amount": "Amount",
+    "reference": "Reference",
+    "bank": "Bank",
+    "accountName": "Account name",
+    "accountNumber": "Account number",
+    "iban": "IBAN",
+    "swift": "SWIFT / BIC",
+    "payBy": "Pay by",
+    "copy": "Copy",
+    "copyLabel": "Copy {what}",
+    "copied": "{what} copied",
+    "copyFailed": "Couldn't copy. Select the text instead.",
+    "what": {
+      "amount": "amount",
+      "reference": "reference",
+      "accountNumber": "account number",
+      "iban": "IBAN"
+    }
+  },
+  "Checkout": {
+    "loading": "Loading checkout…",
+    "kicker": "Secure checkout",
+    "title": "Checkout",
+    "emptyTitle": "Your cart is empty.",
+    "browse": "Browse the shop",
+    "step": {
+      "contact": "Contact and address",
+      "shipping": "Shipping method",
+      "payment": "Payment"
+    },
+    "changeAddress": "Change address",
+    "changeShipping": "Change shipping",
+    "continueToPayment": "Continue to payment",
+    "useDifferentMethod": "Use a different payment method",
+    "shippingFree": "Free",
+    "businessDays": "{min}–{max} business days",
+    "businessDaysExact": "{days, plural, one {{days} business day} other {{days} business days}}",
+    "summaryHeading": "Order summary",
+    "shippingVatNote": "Shipping and VAT are confirmed before payment.",
+    "email": "Email",
+    "emailHint": "We'll send your receipt and tracking here.",
+    "gettingOptions": "Getting shipping options…",
+    "continueToShipping": "Continue to shipping",
+    "address": {
+      "fullName": "Full name",
+      "governorate": "Governorate",
+      "chooseGovernorate": "Choose a governorate",
+      "wilayat": "Wilayat",
+      "wilayatHint": "For example Bawshar, Seeb or Salalah.",
+      "line1": "Area and street",
+      "line1Hint": "For example Al Khuwair, Way 3021.",
+      "line2": "Building, flat or landmark (optional)",
+      "postalCode": "Postal code (optional)",
+      "postalCodeHint": "3 digits, if you know it.",
+      "phone": "Mobile phone",
+      "phoneHint": "Omani number (+968). The courier calls before delivering."
+    },
+    "payment": {
+      "legend": "Payment method",
+      "card": "Card",
+      "cardHint": "Debit or credit card, paid on our payment provider's secure page.",
+      "bankTransfer": "Bank transfer",
+      "bankTransferHint": "We hold your order while you transfer from your bank; we'll show the details next.",
+      "placing": "Placing your order…",
+      "place": "Place order",
+      "stripeMissing": "Card payments aren't configured on this site yet (no Stripe publishable key). Your order {orderNumber} is saved and unpaid.",
+      "loadingForm": "Loading secure payment form…",
+      "redirectFailed": "We couldn't open the payment page. Your order {orderNumber} is saved and unpaid; please try again in a moment or contact us.",
+      "redirecting": "Taking you to the secure payment page…",
+      "processing": "Processing…",
+      "payNow": "Pay now",
+      "fallbackError": "Your payment couldn't be processed. Try another card.",
+      "securityNotice": "Your payment is secured with 256-bit encryption. We never store card details.",
+      "manualHint": "We hold your order while you pay; we will show you how on the next step."
+    },
+    "transfer": {
+      "stamp": "Order placed",
+      "heading": "Thank you, your order is placed. Now pay by bank transfer.",
+      "held": "Your order <mono>{orderNumber}</mono> is held until <strong>{deadline}</strong>. If the payment hasn't arrived by then, the order is cancelled and the items go back on sale.",
+      "note": "Transfer the exact amount below, with your order number as the reference. We'll confirm by email once the payment arrives. These details are in your order email too.",
+      "noteEmail": "Transfer the exact amount below, with your order number as the reference. We'll confirm by email once the payment arrives, at <strong>{email}</strong>. These details are in your order email too.",
+      "panelTitle": "Bank transfer details"
+    },
+    "return": {
+      "statusTitle": "Payment status",
+      "thanksTitle": "Thanks for your order",
+      "thanksBody": "Check your email for your order confirmation and a link to your order. Signed-in customers can also find it under <orders>your orders</orders>.",
+      "failedTitle": "Your payment didn't go through",
+      "failedBody": "No money was taken for order <mono>{number}</mono>, and your cart still has your items. You can try again with another card or pay by bank transfer.",
+      "tryAgain": "Try again",
+      "backToCart": "Back to cart",
+      "pendingTitle": "We're still confirming your payment",
+      "pendingBody": "The payment provider hasn't confirmed it yet. There's no need to pay again: we'll email you as soon as it's confirmed.",
+      "checkAgain": "Check again",
+      "errorTitle": "We couldn't check this order",
+      "backToShop": "Back to the shop",
+      "almostThere": "Almost there",
+      "confirming": "Confirming your payment…",
+      "paidStamp": "Order confirmed",
+      "paidTitle": "Payment received, thank you.",
+      "paidBody": "Order number <mono>{number}</mono>. A receipt is on its way by email.",
+      "viewOrder": "View your order",
+      "keepShopping": "Keep shopping"
+    },
+    "manual": {
+      "stamp": "Order placed",
+      "heading": "Thank you, your order is placed. Now complete your payment.",
+      "held": "Your order <mono>{orderNumber}</mono> is held until <strong>{deadline}</strong>. If the payment has not arrived by then, the order is cancelled and the items go back on sale.",
+      "note": "Pay the exact amount below and quote your order number as the reference. We will confirm by email once the payment is received. These details are in your order email too.",
+      "noteEmail": "Pay the exact amount below and quote your order number as the reference. We will confirm by email once the payment is received, at <strong>{email}</strong>. These details are in your order email too.",
+      "panelTitle": "Pay with {label}"
+    }
+  },
+  "Product": {
+    "home": "Home",
+    "photoBy": "Photo by {creator}, {license}.",
+    "credits": "Credits",
+    "payBy": "Pay by {methods}",
+    "method": {
+      "card": "card",
+      "bank_transfer": "bank transfer",
+      "manual": "manual payment"
+    },
+    "related": "More from this collection",
+    "chooseAndAdd": "Choose and add",
+    "trust": {
+      "secureCheckout": "Secure checkout",
+      "freeDelivery": "Free delivery",
+      "easyReturns": "Easy 14-day returns"
+    },
+    "purchase": {
+      "unavailable": "This product is currently unavailable.",
+      "option": "Option",
+      "attr": {
+        "size": "Size",
+        "color": "Colour",
+        "capacity": "Capacity"
+      },
+      "soldOutSoon": "Sold out — check back soon.",
+      "onlyLeft": "Only {count} left in stock",
+      "inStock": "In stock",
+      "sku": "SKU {sku}",
+      "quantity": "Quantity",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity",
+      "soldOut": "Sold out",
+      "soldOutSr": "(sold out)",
+      "adding": "Adding…",
+      "add": "Add to cart",
+      "added": "Added {quantity} × {name} to your cart."
+    },
+    "specs": {
+      "caption": "Product details",
+      "notListed": "Not listed",
+      "material": "Material",
+      "ovenSafe": "Oven-safe",
+      "ovenNone": "Not oven-safe / not listed",
+      "ovenUpTo": "Up to {f}°F ({c}°C)",
+      "induction": "Induction",
+      "inductionYes": "Works on induction",
+      "inductionNo": "Not for induction",
+      "dishwasher": "Dishwasher",
+      "dishwasherYes": "Dishwasher safe",
+      "dishwasherNo": "Hand wash only",
+      "care": "Care"
+    },
+    "gallery": {
+      "zoom": "Zoom image: {alt}",
+      "images": "Product images",
+      "showImage": "Show image {n} of {total}",
+      "dialog": "{name} images",
+      "closeZoom": "Close zoom",
+      "previous": "Previous image",
+      "next": "Next image",
+      "clickToExpand": "Click to expand"
+    },
+    "price": {
+      "from": "From",
+      "was": "Was ",
+      "save": "Save {percent}%"
+    },
+    "rating": {
+      "none": "No reviews yet",
+      "label": "Rated {average} out of 5 from {count, plural, one {{n} review} other {{n} reviews}}"
+    },
+    "reviews": {
+      "heading": "Reviews",
+      "write": "Write a review",
+      "thanks": "Thanks! Your review is posted.",
+      "none": "No reviews yet. Bought one? Tell other shoppers how it went.",
+      "list": "Customer reviews",
+      "pages": "Review pages",
+      "previous": "Previous reviews",
+      "next": "Next reviews",
+      "page": "Page {page} of {total}",
+      "verified": "Verified buyer",
+      "rated": "Rated {rating} out of 5",
+      "ratingError": "Choose a rating from 1 to 5 stars.",
+      "titleError": "Add a short title.",
+      "signIn": "Sign in",
+      "yourRating": "Your rating",
+      "stars": "{count, plural, one {{n} star} other {{n} stars}}",
+      "title": "Title",
+      "review": "Review",
+      "posting": "Posting…",
+      "post": "Post review"
+    },
+    "quickAdd": {
+      "adding": "Adding…",
+      "added": "Added",
+      "add": "Quick add",
+      "soldOut": "Sold out",
+      "aria": "{label}: {name}",
+      "addedMsg": "Added {name} to your cart.",
+      "failed": "We couldn't add that just now. Please try again."
+    }
+  },
+  "Catalog": {
+    "breadcrumb": "Breadcrumb",
+    "filters": {
+      "label": "Filters",
+      "button": "Filters",
+      "refine": "Refine",
+      "clearAll": "Clear all",
+      "availability": "Availability",
+      "inStockOnly": "In stock only",
+      "induction": "Induction compatible",
+      "brand": "Brand",
+      "material": "Material",
+      "products": "{count, plural, one {{n} product} other {{n} products}}",
+      "price": "Price",
+      "minPrice": "Min price ({currency})",
+      "maxPrice": "Max price ({currency})",
+      "apply": "Apply price",
+      "errorFormat": "Enter prices in {currency} with up to {decimals} decimals, like 25 or 18.5.",
+      "errorOrder": "Minimum price is above the maximum.",
+      "quickFilter": "Quick filters",
+      "allFilters": "All filters",
+      "activeFilters": "Active filters",
+      "removeFilter": "Remove {filter} filter"
+    },
+    "listing": {
+      "count": "{count, plural, one {{n} product} other {{n} products}}",
+      "countFor": "{count, plural, one {{n} product} other {{n} products}} for “<hl>{term}</hl>”",
+      "empty": "Nothing on this shelf yet.",
+      "emptyHint": "Try fewer filters or a different search.",
+      "clear": "Clear filters"
+    },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "← Previous",
+      "next": "Next →",
+      "page": "Page {page}"
+    },
+    "sort": {
+      "label": "Sort by",
+      "relevance": "Featured",
+      "popular": "Best sellers",
+      "newest": "Newest",
+      "price_asc": "Price: low to high",
+      "price_desc": "Price: high to low"
+    },
+    "shop": {
+      "metaTitle": "Shop all products",
+      "metaDescription": "Cake stands, tiered stands, dallahs and carafes, vases and tableware from PAISLEY art.",
+      "searchTitle": "Search: {q}",
+      "eyebrow": "The whole collection",
+      "resultsFor": "Results for “{q}”"
+    },
+    "category": {
+      "metaDescription": "Shop {name} at PAISLEY art.",
+      "eyebrow": "Department",
+      "collections": "{name} collections"
+    }
+  },
+  "Credits": {
+    "title": "Photo credits",
+    "description": "Photographs on this site that come from someone else, with the creator and licence.",
+    "intro": "Product photographs on this site are supplied by PAISLEY art. Any photograph taken by someone else would be listed here with its creator and licence.",
+    "byLine": "<src>{title}</src> by {creator}, via {via}, under <lic>{licence}</lic>."
+  },
+  "NotFound": {
+    "stamp": "404 · Page not found",
+    "title": "We can't find that page.",
+    "body": "The page may have moved, or the product is no longer stocked.",
+    "browse": "Browse the shop"
+  },
+  "Auth": {
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "generic": "Something went wrong. Please try again.",
+    "tagline": "Welcome to PAISLEY art.",
+    "login": {
+      "metaTitle": "Sign in",
+      "kicker": "Welcome back",
+      "forgot": "Forgot your password?",
+      "newHere": "New here?",
+      "create": "Create an account"
+    },
+    "register": {
+      "metaTitle": "Create an account",
+      "kicker": "Join PAISLEY art",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "passwordHint": "At least {min} characters. A short phrase works well.",
+      "submit": "Create account",
+      "pending": "Creating account…",
+      "already": "Already have an account?",
+      "checkEmail": "Check {email} for a message from us. If it's a new account, the email has a link to confirm it. If you already had one, the email says so and tells you how to sign in.",
+      "resend": "Resend the email",
+      "resending": "Sending…",
+      "resent": "If that address needs confirming, a new link is on its way."
+    },
+    "forgot": {
+      "metaTitle": "Reset your password",
+      "kicker": "It happens",
+      "title": "Forgot your password?",
+      "lead": "Enter your email and we'll send you a reset link.",
+      "sent": "If an account exists for that email, a reset link is on its way. It expires soon, so use it today.",
+      "sending": "Sending…",
+      "send": "Send reset link"
+    },
+    "reset": {
+      "metaTitle": "Choose a new password",
+      "kicker": "Almost done",
+      "mismatch": "The passwords don't match.",
+      "incomplete": "This reset link is incomplete or was already used.",
+      "requestNew": "Request a new link",
+      "done": "Your password is reset. Other devices have been signed out.",
+      "newPassword": "New password",
+      "confirm": "Confirm new password",
+      "saving": "Saving…",
+      "submit": "Reset password"
+    },
+    "verify": {
+      "metaTitle": "Verify your email",
+      "kicker": "One last step",
+      "incomplete": "This verification link is incomplete. Open the latest email we sent you.",
+      "checking": "Checking your link…",
+      "verified": "Thanks, your email is verified.",
+      "start": "Start shopping"
+    },
+    "shopThis": "Shop {name}"
+  },
+  "Language": {
+    "otherName": "العربية",
+    "otherCode": "ar",
+    "switchLabel": "Switch language to Arabic"
+  },
+  "Order": {
+    "placedOn": "Placed {date}",
+    "itemsAndTotals": "Items and totals",
+    "shipping": "Shipping",
+    "shippingMethod": {
+      "standard": "Standard shipping",
+      "express": "Express shipping"
+    },
+    "paymentPending": "Payment: {method}",
+    "paidBy": "Paid by {method}",
+    "method": {
+      "card": "card",
+      "bank_transfer": "bank transfer",
+      "manual": "manual payment"
+    },
+    "trackingNumber": "Tracking number",
+    "timeline": "Timeline",
+    "timelineLabel": "Order timeline",
+    "refundFull": "Refunded in full: {amount}",
+    "refundPartial": "Partially refunded: {amount}",
+    "awaitingTransferTitle": "Awaiting bank transfer",
+    "heldUntil": "Your order is held until <strong>{deadline}</strong>. Transfer the amount below with the order number as the reference. We'll confirm by email once the payment arrives; if it doesn't arrive in time, the order is cancelled.",
+    "status": {
+      "PENDING_PAYMENT": "Awaiting payment",
+      "PENDING_PAYMENT_TRANSFER": "Awaiting bank transfer",
+      "PAID": "Paid",
+      "PROCESSING": "Being packed",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "REFUNDED": "Refunded"
+    },
+    "tracker": {
+      "heading": "Where your order is",
+      "step": {
+        "placed": "Order placed",
+        "paid": "Payment confirmed",
+        "processing": "Being packed",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      },
+      "state": {
+        "done": "Completed",
+        "current": "Current step",
+        "upcoming": "Not yet"
+      },
+      "noTrackingYet": "The courier, tracking number and expected delivery date appear here once the order ships.",
+      "carrier": "Courier",
+      "expectedBy": "Expected delivery"
+    },
+    "awaitingManualTitle": "Awaiting payment: {label}",
+    "heldUntilManual": "Your order is held until <strong>{deadline}</strong>. Pay the amount below and quote the order number as the reference. We will confirm by email once the payment is received; if it does not arrive in time, the order is cancelled."
+  }
+}

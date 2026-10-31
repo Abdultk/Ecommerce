@@ -1,0 +1,26 @@
+node_modules/
+dist/
+coverage/
+coverage-int/
+.turbo/
+.next/
+out/
+*.tsbuildinfo
+*.log
+
+# Secrets — only .env.example is committed
+.env
+.env.*
+!.env.example
+
+# Test artifacts
+playwright-report/
+test-results/
+
+# Local database dumps (real rows: password hashes, addresses, orders) and E2E snapshot builds
+infra/backups/
+e2e/.apps/
+
+# Product photo sources and dev image store (large; originals are not committed)
+albaleed images/
+apps/api/.dev-cdn/

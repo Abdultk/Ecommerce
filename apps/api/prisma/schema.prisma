@@ -1,0 +1,553 @@
+// Hearth & Pan database schema. See docs/BLUEPRINT.md §4.2 and README "Contract v1 changes".
+// Raw SQL that Prisma cannot express (CHECK constraints, search trigger, trigram index)
+// lives at the end of the init migration.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  STAFF
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+// Partial refunds do not change status; they are tracked by Order.refundedCents.
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CARD
+  BANK_TRANSFER
+  /// An admin-defined offline method (see StoreSettings.manualMethods); confirmed by hand
+  MANUAL
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+  FREE_SHIPPING
+}
+
+// Reasons for a change to ProductVariant.stockOnHand. Reservations only touch stockReserved.
+enum StockReason {
+  RESTOCK
+  SALE
+  RETURN
+  DAMAGE
+  CORRECTION
+}
+
+enum UserTokenType {
+  VERIFY_EMAIL
+  RESET_PASSWORD
+  /// Staff invite: sets the password and is the only way to enroll admin 2FA
+  ADMIN_INVITE
+}
+
+model User {
+  id              String         @id @default(cuid())
+  email           String         @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  role            Role           @default(CUSTOMER)
+  emailVerifiedAt DateTime?
+  /// AES-256-GCM encrypted TOTP secret (admin roles)
+  totpSecretEnc   String?
+  /// Set once the admin has proven a first code; until then enrollment is pending
+  totpEnabledAt   DateTime?
+  /// Last accepted TOTP time-step, so a code cannot be replayed
+  totpLastStep    Int?
+  disabledAt      DateTime?
+  lastLoginAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  addresses       Address[]
+  orders          Order[]
+  cart            Cart?
+  reviews         Review[]
+  wishlist        WishlistItem[]
+  refreshTokens   RefreshToken[]
+  tokens          UserToken[]
+  reportJobs      ReportJob[]
+  preferences     CustomerPreferences?
+
+  @@index([role])
+}
+
+/// A customer's own settings. One row per user, created on first save; no row means defaults.
+model CustomerPreferences {
+  userId               String         @id
+  /// +968 number, normalised
+  phone                String?
+  /// Consent to offers. Off until the customer turns it on.
+  marketingEmails      Boolean        @default(false)
+  /// The "your order has shipped" email. Receipts and payment emails are always sent.
+  shippingUpdateEmails Boolean        @default(true)
+  /// Preselected at checkout
+  preferredPayment     PaymentMethod?
+  preferredShipping    String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id                String    @id @default(cuid())
+  userId            String
+  /// Rotation chain; reuse of a rotated token revokes the whole family
+  familyId          String
+  /// sha256(token + pepper); the raw token only ever exists in the cookie
+  tokenHash         String    @unique
+  /// True for admin sessions that passed 2FA; carried into each access token
+  twoFactorVerified Boolean   @default(false)
+  expiresAt         DateTime
+  /// Hard cap for the whole rotation chain, set at sign-in and carried on rotation
+  familyExpiresAt   DateTime
+  revokedAt         DateTime?
+  replacedByHash    String?
+  userAgent         String?
+  ip                String?
+  createdAt         DateTime  @default(now())
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+}
+
+/// Single-use email verification and password reset tokens (stored hashed)
+model UserToken {
+  id        String        @id @default(cuid())
+  userId    String
+  type      UserTokenType
+  tokenHash String        @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime      @default(now())
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+}
+
+model Address {
+  id         String  @id @default(cuid())
+  userId     String
+  fullName   String
+  line1      String
+  line2      String?
+  city       String
+  region     String
+  /// Optional in Oman (3 digits); older US rows hold a ZIP code
+  postalCode String?
+  country    String  @db.Char(2)
+  phone      String?
+  isDefault  Boolean @default(false)
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Category {
+  id       String     @id @default(cuid())
+  slug     String     @unique
+  name     String
+  /// Localised text by language code, e.g. {"ar": {"name": "..."}}; base columns are English
+  translations Json @default("{}")
+  parentId String?
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  position Int        @default(0)
+  products Product[]
+
+  @@index([parentId])
+}
+
+model Product {
+  id                  String                   @id @default(cuid())
+  slug                String                   @unique
+  name                String
+  brand               String?
+  /// Localised name/description/material/careInstructions by language code (base columns are English)
+  translations        Json                     @default("{}")
+  /// Sanitized HTML
+  description         String
+  material            String?
+  careInstructions    String?
+  dishwasherSafe      Boolean?
+  inductionCompatible Boolean?
+  ovenSafeToF         Int?
+  status              ProductStatus            @default(DRAFT)
+  categoryId          String
+  category            Category                 @relation(fields: [categoryId], references: [id])
+  variants            ProductVariant[]
+  images              ProductImage[]
+  reviews             Review[]
+  wishlistedBy        WishlistItem[]
+  ratingAvg           Decimal                  @default(0) @db.Decimal(3, 2)
+  ratingCount         Int                      @default(0)
+  /// Denormalized for the "popular" sort; incremented when an order is paid
+  salesCount          Int                      @default(0)
+  /// Maintained by a trigger (see migration SQL)
+  searchVector        Unsupported("tsvector")?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  @@index([status, categoryId])
+  @@index([brand])
+}
+
+model ProductVariant {
+  id                  String          @id @default(cuid())
+  productId           String
+  sku                 String          @unique
+  name                String
+  /// Localised variant name by language code
+  translations        Json            @default("{}")
+  attributes          Json            @default("{}")
+  priceCents          Int
+  compareAtPriceCents Int?
+  /// Admin-only, for margin reports
+  costCents           Int?
+  stockOnHand         Int             @default(0)
+  stockReserved       Int             @default(0)
+  lowStockThreshold   Int             @default(5)
+  weightGrams         Int?
+  isActive            Boolean         @default(true)
+  /// Set when a low-stock alert went out; cleared once stock recovers, so each dip alerts once
+  lowStockAlertedAt   DateTime?
+  product             Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  movements           StockMovement[]
+
+  @@index([productId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  /// R2 object key; the public URL is derived from it
+  key       String
+  url       String
+  alt       String
+  position  Int     @default(0)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, position])
+}
+
+/// Append-only ledger: every change to stockOnHand writes one row, so the ledger sums to stockOnHand.
+model StockMovement {
+  id        String         @id @default(cuid())
+  variantId String
+  delta     Int
+  reason    StockReason
+  note      String?
+  orderId   String?
+  actorId   String?
+  createdAt DateTime       @default(now())
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@index([variantId, createdAt])
+}
+
+model Cart {
+  id         String     @id @default(cuid())
+  /// Null for guest carts, which are identified by a signed cookie
+  userId     String?    @unique
+  couponCode String?
+  expiresAt  DateTime
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  user       User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items      CartItem[]
+
+  @@index([expiresAt])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  variantId String
+  quantity  Int
+  createdAt DateTime @default(now())
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, variantId])
+}
+
+model Coupon {
+  id               String     @id @default(cuid())
+  /// Stored upper case
+  code             String     @unique
+  type             CouponType
+  /// Percent (1-100), cents, or 0 for free shipping
+  value            Int
+  minSubtotalCents Int        @default(0)
+  maxRedemptions   Int?
+  perCustomerLimit Int?       @default(1)
+  redemptions      Int        @default(0)
+  startsAt         DateTime?
+  endsAt           DateTime?
+  isActive         Boolean    @default(true)
+  /// Empty = applies to all categories
+  categoryIds      String[]
+  createdAt        DateTime   @default(now())
+}
+
+model Order {
+  id                    String        @id @default(cuid())
+  /// Human-facing, e.g. HP-2026-000123
+  number                String        @unique
+  lookupTokenHash       String?
+  /// Client-supplied Idempotency-Key for POST /checkout/intent (scoped by cart)
+  idempotencyKey        String?       @unique
+  /// sha256 of the checkout request + cart contents; a reused key with a different hash is refused
+  idempotencyHash       String?
+  /// sha256 of the client's rate-limit key (IP or IPv6 /64), to cap open checkouts per client
+  checkoutIpHash        String?
+  /// The cart that was checked out; emptied once payment succeeds
+  cartId                String?
+  userId                String?
+  email                 String
+  status                OrderStatus   @default(PENDING_PAYMENT)
+  subtotalCents         Int
+  discountCents         Int           @default(0)
+  shippingCents         Int
+  taxCents              Int
+  totalCents            Int
+  refundedCents         Int           @default(0)
+  /// The store currency when the order was placed; every amount is in its minor units
+  currency              String        @default("OMR")
+  paymentMethod         PaymentMethod @default(CARD)
+  /// "amwal" | "stripe" | "fake" for card orders, "manual" for bank transfers
+  paymentProvider       String?
+  couponCode            String?
+  /// Snapshot, not a foreign key
+  shippingAddress       Json
+  billingAddress        Json?
+  shippingMethod        String
+  trackingNumber        String?
+  /// Courier named by staff when the order is marked shipped
+  carrier               String?
+  /// Delivery date staff expect when marking shipped; never computed
+  estimatedDeliveryAt   DateTime?
+  /// The provider's payment id (Stripe PaymentIntent, Amwal transaction id once paid)
+  providerPaymentId     String?       @unique
+  /// Hosted-checkout session (Amwal order number, fake session)
+  providerSessionId     String?       @unique
+  /// Bank details shown to the customer for a transfer order (snapshot at checkout)
+  transferBank          Json?
+  /// For MANUAL orders: { id, label, instructions } as they were when the order was placed
+  manualPayment         Json?
+  transferConfirmedById String?
+  transferConfirmedAt   DateTime?
+  transferBankReference String?
+  /// Card: the stock hold. Bank transfer: the payment deadline (stock held until then)
+  reservationExpiresAt  DateTime?
+  paidAt                DateTime?
+  cancelledAt           DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  user                  User?         @relation(fields: [userId], references: [id])
+  items                 OrderItem[]
+  events                OrderEvent[]
+  refunds               Refund[]
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@index([paidAt])
+  @@index([paymentMethod, status])
+}
+
+/// Yearly counter behind human-facing order numbers
+model OrderSequence {
+  year  Int @id
+  value Int @default(0)
+}
+
+model OrderItem {
+  id             String @id @default(cuid())
+  orderId        String
+  variantId      String
+  productName    String
+  variantName    String
+  sku            String
+  unitPriceCents Int
+  quantity       Int
+  lineTotalCents Int
+  order          Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([variantId])
+}
+
+model OrderEvent {
+  id         String       @id @default(cuid())
+  orderId    String
+  type       String
+  fromStatus OrderStatus?
+  toStatus   OrderStatus?
+  message    String?
+  actorId    String?
+  createdAt  DateTime     @default(now())
+  order      Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+}
+
+model Refund {
+  id               String   @id @default(cuid())
+  orderId          String
+  amountCents      Int
+  reason           String?
+  /// The provider's refund id; "manual_<uuid>" for bank-transfer refunds
+  providerRefundId String   @unique
+  /// "stripe" | "amwal" | "fake" | "manual"
+  provider         String   @default("stripe")
+  /// Reference of the manual bank refund
+  bankReference    String?
+  actorId          String
+  createdAt        DateTime @default(now())
+  order            Order    @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  rating    Int
+  title     String
+  body      String
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([productId, userId])
+}
+
+model WishlistItem {
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([userId, productId])
+}
+
+/// Store-wide settings: a single row with id "default" (created by the Phase 3b migration).
+model StoreSettings {
+  id                         String   @id @default("default")
+  storeName                  String   @default("Hearth & Pan")
+  /// ISO 4217 code; locked once any order exists
+  currency                   String   @default("OMR")
+  /// VAT in basis points (500 = 5%), applied to subtotal minus discount
+  vatRateBps                 Int      @default(500)
+  standardCents              Int      @default(2000)
+  expressCents               Int      @default(5000)
+  /// Free standard shipping from this subtotal; null turns it off
+  freeShippingThresholdCents Int?     @default(30000)
+  standardDaysMin            Int      @default(2)
+  standardDaysMax            Int      @default(4)
+  expressDaysMin             Int      @default(1)
+  expressDaysMax             Int      @default(1)
+  cardEnabled                Boolean  @default(true)
+  bankTransferEnabled        Boolean  @default(false)
+  bankTransferHoldHours      Int      @default(24)
+  /// ManualMethod[] (contract shape): admin-defined offline payment methods
+  manualMethods              Json     @default("[]")
+  /// BankDetails (contract shape) or null
+  bank                       Json?
+  updatedAt                  DateTime @updatedAt
+}
+
+/// Idempotency for payment webhook events (and synthetic status/reconcile checks)
+model ProcessedWebhook {
+  eventId     String   @id
+  processedAt DateTime @default(now())
+}
+
+/// Admin Idempotency-Key replays: one row per (scope, key); responseStatus is null while in flight
+model IdempotencyRecord {
+  id             String   @id @default(cuid())
+  /// e.g. "admin:<userId>"; keys are private to the caller
+  scope          String
+  key            String
+  /// sha256 of method + path + canonical JSON body
+  requestHash    String
+  responseStatus Int?
+  responseBody   Json?
+  createdAt      DateTime @default(now())
+
+  @@unique([scope, key])
+  @@index([createdAt])
+}
+
+enum ReportJobStatus {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+  /// File deleted after the retention period (REPORT_RETENTION_MS); no download link
+  EXPIRED
+}
+
+/// CSV/XLSX export generated by the worker. The file lives in private storage under storageKey.
+model ReportJob {
+  id            String          @id @default(cuid())
+  requestedById String
+  type          String
+  format        String
+  rangeFrom     DateTime
+  /// Exclusive end
+  rangeTo       DateTime
+  status        ReportJobStatus @default(QUEUED)
+  storageKey    String?
+  rowCount      Int?
+  error         String?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime        @default(now())
+  requestedBy   User            @relation(fields: [requestedById], references: [id], onDelete: Cascade)
+
+  @@index([requestedById, createdAt])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  action    String
+  entity    String
+  entityId  String?
+  before    Json?
+  after     Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([actorId, createdAt])
+}

@@ -1,0 +1,485 @@
+@import "tailwindcss";
+
+/*
+ * PAISLEY art design system: modern culinary luxury.
+ * Warm ivory ground, charcoal ink, deep forest and muted sage, brushed copper as the
+ * single warm accent. Editorial serif for display, a clean sans for everything you read
+ * or press. Names of the older token set (flour, iron, ember, ...) are kept so every
+ * component picks up the new look; their values are what changed.
+ * Contrast (text on its ground): charcoal on ivory 14:1, smoke on ivory 5.9:1,
+ * ivory on forest 11:1, copper-deep on ivory 5.3:1, white on copper-deep 5.9:1.
+ */
+@theme {
+  --color-flour: #f7f4ed; /* ivory */
+  --color-parchment: #ece7da; /* deeper ivory for wells and hovers */
+  --color-crust: #ffffff; /* soft white for cards and fields */
+  --color-iron: #242622; /* charcoal */
+  --color-iron-soft: #343630;
+  --color-smoke: #5a5d55;
+  --color-line: #dcd6c7;
+  --color-stroke: #797c70;
+  --color-forest: #243b30;
+  --color-forest-soft: #2f4a3c;
+  --color-sage-soft: #a8b5a0; /* muted sage, for fills */
+  --color-copper: #b87953; /* brushed copper, for fills and large marks */
+  --color-ember: #8f5532; /* copper for text and buttons (5.9:1 with white) */
+  --color-ember-deep: #763f20;
+  --color-ember-wash: #f2e3d6;
+  --color-butter: #e6c7a8; /* light copper */
+  --color-sage: #243b30;
+  --color-sage-wash: #dde4d6;
+  --color-enamel: #2f4a3c;
+  --color-enamel-wash: #e1e8df;
+  --color-amber: #b45309;
+  --color-amber-wash: #fef3c7;
+  --color-danger: #a1261b;
+  --color-danger-wash: #fbe3df;
+
+  --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-dmsans), "Avenir Next", "Segoe UI", system-ui, sans-serif;
+
+  --text-hero: clamp(2.75rem, 1.2rem + 6vw, 6.25rem);
+  --text-display: clamp(2rem, 1.3rem + 2.6vw, 3.5rem);
+
+  --radius-pan: 1.25rem;
+  --radius-tile: 0.625rem;
+  --radius-btn: 0.5rem;
+
+  --shadow-plate: 0 1px 2px rgb(36 38 34 / 0.05), 0 14px 32px -22px rgb(36 38 34 / 0.35);
+  --shadow-lift: 0 2px 4px rgb(36 38 34 / 0.06), 0 26px 44px -26px rgb(36 59 48 / 0.5);
+
+  --ease-sear: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-flour);
+    color: var(--color-iron);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-forest);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .on-dark :focus-visible,
+  .bg-forest :focus-visible,
+  .bg-iron :focus-visible {
+    outline-color: var(--color-butter);
+  }
+
+  ::selection {
+    background: var(--color-sage-soft);
+    color: var(--color-iron);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .skip-link {
+    position: absolute;
+    inset-inline-start: 1rem;
+    top: -4rem;
+    z-index: 100;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-forest);
+    color: var(--color-flour);
+    font-weight: 600;
+    border-radius: var(--radius-tile);
+    transition: top 150ms var(--ease-sear);
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
+
+  /* Quiet sentence-case label above a heading or on a spec caption: plain text, no ornament. */
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-smoke);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.875rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: var(--radius-btn);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition:
+      transform 200ms var(--ease-sear),
+      background-color 200ms var(--ease-sear),
+      color 200ms var(--ease-sear),
+      box-shadow 200ms var(--ease-sear);
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.985);
+  }
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    background: var(--color-parchment);
+    color: var(--color-smoke);
+    box-shadow: none;
+  }
+  .btn-primary {
+    background: var(--color-forest);
+    color: var(--color-flour);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-forest-soft);
+    box-shadow: 0 12px 24px -14px rgb(36 59 48 / 0.8);
+    transform: translateY(-1px);
+  }
+  .btn-copper {
+    background: var(--color-ember);
+    color: #fff;
+  }
+  .btn-copper:hover:not(:disabled) {
+    background: var(--color-ember-deep);
+    transform: translateY(-1px);
+  }
+  .btn-iron {
+    background: var(--color-iron);
+    color: var(--color-flour);
+  }
+  .btn-iron:hover:not(:disabled) {
+    background: var(--color-iron-soft);
+  }
+  .btn-ghost {
+    border: 1.5px solid var(--color-stroke);
+    color: var(--color-iron);
+    background: transparent;
+  }
+  .btn-ghost:hover {
+    background: var(--color-parchment);
+    border-color: var(--color-iron);
+  }
+  .btn-light {
+    background: var(--color-flour);
+    color: var(--color-forest);
+  }
+  .btn-light:hover {
+    background: #fff;
+    transform: translateY(-1px);
+  }
+
+  .field {
+    width: 100%;
+    min-height: 2.875rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: var(--radius-tile);
+    border: 1.5px solid var(--color-line);
+    background: var(--color-crust);
+    color: var(--color-iron);
+    transition:
+      border-color 200ms var(--ease-sear),
+      box-shadow 200ms var(--ease-sear);
+  }
+  .field:hover {
+    border-color: var(--color-stroke);
+  }
+  .field:focus-visible {
+    outline-offset: 1px;
+    border-color: var(--color-forest);
+  }
+  .field[aria-invalid="true"] {
+    border-color: var(--color-danger);
+    background: var(--color-danger-wash);
+  }
+
+  /* Soft sage ground behind illustrated placeholders and empty states. */
+  .tile-bg {
+    background-color: var(--color-sage-wash);
+  }
+
+  .link-underline {
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 0.25em;
+    transition: color 200ms var(--ease-sear);
+  }
+  .link-underline:hover {
+    color: var(--color-ember-deep);
+  }
+
+  /* Animated underline for text links in navigation and footers. */
+  .link-slide {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0 1.5px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 280ms var(--ease-sear);
+  }
+  .link-slide:hover,
+  .link-slide:focus-visible {
+    background-size: 100% 1.5px;
+  }
+
+  /* Touch screens: text links get a 44px tap area without changing how they look. Underlined
+     links keep their line layout (padding on an inline box only widens the hit area); footer and
+     menu links, which stand on their own line, get a 44px minimum height. */
+  @media (pointer: coarse) {
+    .link-underline {
+      padding-block: 0.65rem;
+    }
+    .link-slide {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.75rem;
+    }
+  }
+
+  .prose-kitchen p + p {
+    margin-top: 0.75rem;
+  }
+}
+
+/* ---------------- Motion ---------------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes unveil {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(18px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes steam {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(-8px) scaleY(1.08);
+    opacity: 0.2;
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes bump {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes drift {
+  from {
+    transform: translateY(-5%);
+  }
+  to {
+    transform: translateY(5%);
+  }
+}
+@keyframes scroll-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes slide-in {
+  from {
+    /* The mobile menu opens from the start edge: left in English, right in Arabic. */
+    transform: translateX(var(--slide-from, -100%));
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes clip-reveal {
+  from {
+    clip-path: inset(12% 8% 12% 8%);
+    opacity: 0.6;
+  }
+  to {
+    clip-path: inset(0);
+    opacity: 1;
+  }
+}
+
+@utility animate-rise {
+  animation: rise 520ms var(--ease-sear) both;
+}
+@utility animate-steam {
+  animation: steam 3.2s ease-in-out infinite;
+  transform-origin: bottom;
+}
+@utility animate-bump {
+  animation: bump 420ms var(--ease-spring);
+}
+@utility skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-parchment) 0%,
+    var(--color-crust) 50%,
+    var(--color-parchment) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: var(--radius-tile);
+}
+
+/*
+ * Arabic (Oman). Unlayered on purpose, so these beat Tailwind's utility classes.
+ * Headings use a Kufic-influenced face; reading text uses a clear sans. Arabic needs more
+ * line height than Latin, and letter-spacing breaks the joined letterforms, so it is reset.
+ */
+html[lang^="ar"] {
+  --font-display: var(--font-reemkufi), "Noto Kufi Arabic", "Segoe UI", Tahoma, sans-serif;
+  --font-sans: var(--font-plexarabic), "Segoe UI", Tahoma, sans-serif;
+}
+html[lang^="ar"] body {
+  line-height: 1.75;
+}
+html[lang^="ar"] :where(h1, h2, h3, h4, p, a, span, button, label, li, td, th, dt, dd, legend) {
+  letter-spacing: normal;
+}
+/* Each headline line is its own block, whatever the motion setting (the animation is separate). */
+.hero-line {
+  display: block;
+}
+
+/* The Kufic display face has narrow word gaps and tall forms: open them up a little. */
+html[lang^="ar"] :where(h1, h2, h3) {
+  word-spacing: 0.12em;
+  line-height: 1.4;
+}
+/* Arrows and chevrons that point in the reading direction turn around in right-to-left. */
+html[dir="rtl"] {
+  --slide-from: 100%;
+}
+html[dir="rtl"] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+/*
+ * Hero sequence on load: photograph fades in, the headline lines unveil, the copy and
+ * buttons rise in turn, the featured pieces settle last. Nothing waits on script, and
+ * the page is usable from the first frame.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-bg {
+    animation: fade-in 900ms var(--ease-sear) both;
+  }
+  .hero-line {
+    display: block;
+    animation: unveil 780ms var(--ease-sear) both;
+    animation-delay: calc(220ms + var(--i, 0) * 110ms);
+  }
+  .hero-copy {
+    animation: rise 640ms var(--ease-sear) both;
+    animation-delay: calc(520ms + var(--i, 0) * 90ms);
+  }
+  .hero-piece {
+    animation: settle 900ms var(--ease-sear) both;
+    animation-delay: calc(480ms + var(--i, 0) * 140ms);
+  }
+
+  /*
+   * Scroll reveals and parallax run on the compositor with CSS scroll-driven animations.
+   * Browsers without support simply show the content, so nothing is ever hidden.
+   */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: scroll-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 38%;
+    }
+    .reveal-stagger > * {
+      animation: scroll-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--i, 0) * 4%) entry calc(36% + var(--i, 0) * 4%);
+    }
+    .reveal-clip {
+      animation: clip-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 34%;
+    }
+    .parallax {
+      animation: drift linear both;
+      animation-timeline: view();
+    }
+  }
+}

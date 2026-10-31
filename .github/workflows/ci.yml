@@ -1,0 +1,208 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# One run per ref; superseded PR runs are cancelled, main runs always finish.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Least privilege by default; jobs widen only what they need.
+permissions:
+  contents: read
+
+# Third-party actions are pinned to full commit SHAs (tag in the trailing comment).
+# Update them together (e.g. via Dependabot/Renovate for github-actions), re-verifying each SHA.
+
+jobs:
+  quality:
+    name: Lint, typecheck, unit tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0 — version from package.json "packageManager"
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Format check (prettier --check)
+        run: pnpm format:check
+
+      - name: Lint and typecheck
+        run: pnpm turbo lint typecheck
+
+      - name: Unit tests with coverage gates
+        run: pnpm turbo test
+
+      - name: Build
+        # The storefront's production build needs a 32+ char INTERNAL_API_TOKEN; generate a
+        # throwaway one per run rather than committing a placeholder secret.
+        run: |
+          INTERNAL_API_TOKEN="$(openssl rand -hex 32)"
+          echo "::add-mask::$INTERNAL_API_TOKEN"
+          export INTERNAL_API_TOKEN
+          pnpm turbo build
+        env:
+          # Placeholder hosts: the production builds refuse to start without them.
+          NEXT_PUBLIC_API_URL: https://api.example.test/api/v1
+          NEXT_PUBLIC_SITE_URL: https://www.example.test
+          NEXT_PUBLIC_CDN_URL: https://cdn.example.com
+          NEXT_PUBLIC_UPLOAD_ORIGIN: https://ci-bucket.r2.cloudflarestorage.com
+
+      - name: Dependency audit (production deps, high+)
+        run: pnpm audit --prod --audit-level=high
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: coverage
+          path: |
+            packages/*/coverage/coverage-summary.json
+            apps/*/coverage/coverage-summary.json
+          if-no-files-found: ignore
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read # gitleaks lists the PR's commits through the API
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0 # full history so every commit in the push/PR is scanned
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Required only if the repo belongs to a GitHub organization (free key from gitleaks.io).
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          GITLEAKS_ENABLE_COMMENTS: "false" # no PR write permission needed
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      # Needs the dependency graph (public repo, or GitHub Advanced Security on a private one).
+      - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        with:
+          fail-on-severity: high
+
+  integration:
+    name: API integration tests (Postgres + Redis)
+    runs-on: ubuntu-latest
+    needs: quality
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: hp
+          POSTGRES_PASSWORD: hp_ci_only
+          POSTGRES_DB: hearthandpan_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hp -d hearthandpan_test"
+          --health-interval 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+    env:
+      # The suite's global setup runs `prisma migrate deploy` against this *_test database.
+      TEST_DATABASE_URL: postgresql://hp:hp_ci_only@localhost:5432/hearthandpan_test
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo build --filter=@hp/api^...
+      - run: pnpm --filter @hp/api generate
+      - name: Integration tests with coverage gates
+        run: pnpm --filter @hp/api test:int --coverage
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: api-integration-coverage
+          path: apps/api/coverage-int/coverage-summary.json
+          if-no-files-found: ignore
+
+  e2e:
+    name: E2E (Playwright + axe)
+    runs-on: ubuntu-latest
+    needs: quality
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: hp
+          POSTGRES_PASSWORD: hp_ci_only
+          POSTGRES_DB: hearthandpan_e2e_test
+        ports: ["5442:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hp -d hearthandpan_e2e_test"
+          --health-interval 5s --health-retries 10
+      # Not used by the current E2E API config (memory rate limits, no worker); kept so
+      # suites that need the queue can opt in without changing the job.
+      redis:
+        image: redis:7-alpine
+        ports: ["6389:6379"]
+      mailpit:
+        image: axllent/mailpit:v1.21
+        ports: ["8035:8025", "1035:1025"]
+    env:
+      # e2e/scripts/env.mjs reads these; the API/Next secrets are generated per run there.
+      E2E_DATABASE_URL: postgresql://hp:hp_ci_only@127.0.0.1:5442/hearthandpan_e2e_test
+      E2E_SMTP_URL: smtp://127.0.0.1:1035
+      E2E_MAILPIT_URL: http://127.0.0.1:8035
+      CI: "true"
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build workspace packages the apps depend on
+        run: pnpm turbo build --filter=@hp/api^... --filter=@hp/web^... --filter=@hp/admin^...
+      - run: pnpm --filter @hp/api generate
+      - name: Install Playwright browsers
+        # Chromium only: the WebKit project runs just when E2E_WEBKIT=1.
+        run: pnpm --filter @hp/e2e exec playwright install --with-deps chromium
+      - name: Run E2E suite
+        # Playwright's webServer starts api/web/admin via e2e/scripts/servers.mjs.
+        run: pnpm --filter @hp/e2e test:e2e
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          if-no-files-found: ignore
+          retention-days: 14
