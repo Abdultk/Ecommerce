@@ -80,14 +80,15 @@ services:
     name: hp-api
     runtime: node
     region: oregon
-    plan: starter # launch size; raise to standard + autoscaling once traffic needs it
+    plan: free # demo size: sleeps when idle; use starter or higher for a real shop
     # Build only the API and its workspace dependencies; `build` depends on `generate` (Prisma client).
     # --prod=false: NODE_ENV=production would otherwise skip the build tooling (turbo, tsup, prisma CLI).
     # Start commands call node directly so pnpm is not needed at runtime.
     buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm turbo build --filter=@hp/api...
-    # Additive (expand -> migrate -> contract) migrations only, so a rollback still runs on the new schema.
-    preDeployCommand: cd apps/api && ./node_modules/.bin/prisma migrate deploy
-    startCommand: cd apps/api && node dist/server.js
+    # Free instances have no preDeployCommand, so migrations run at start. Additive (expand -> migrate
+    # -> contract) migrations only, so a rollback still runs on the new schema. On a paid plan move
+    # `prisma migrate deploy` back into preDeployCommand.
+    startCommand: cd apps/api && ./node_modules/.bin/prisma migrate deploy && node dist/server.js
     # Liveness + readiness today (checks DB and Redis). Switch to /api/v1/health/live once the
     # backend adds a dependency-free liveness route (see docs/runbooks/monitoring.md).
     healthCheckPath: /api/v1/health
@@ -105,33 +106,14 @@ services:
       - fromGroup: hp-api-config
       - fromGroup: hp-api-secrets
 
-  - type: worker
-    name: hp-worker
-    runtime: node
-    region: oregon
-    plan: starter
-    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm turbo build --filter=@hp/api...
-    # Email delivery, reservation release (every minute), guest-cart purge (hourly) via BullMQ.
-    # Exactly one instance: repeatable jobs are deduplicated, but one consumer keeps ops simple.
-    startCommand: cd apps/api && node dist/worker.js
-    autoDeploy: false
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: hp-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: hp-redis
-          property: connectionString
-      - fromGroup: hp-api-config
-      - fromGroup: hp-api-secrets
+  # hp-worker (email delivery, reservation release, guest-cart purge) is left out: Render has no free
+  # worker plan. Add a `type: worker` service running `cd apps/api && node dist/worker.js` (same build
+  # command and env groups as hp-api) before taking real orders.
 
   - type: keyvalue
     name: hp-redis
     region: oregon
-    plan: starter
+    plan: free
     # BullMQ requires noeviction: evicted job keys silently lose emails and scheduled jobs.
     maxmemoryPolicy: noeviction
     ipAllowList: [] # private network only
@@ -141,6 +123,6 @@ databases:
     databaseName: hearthandpan
     user: hp
     region: oregon
-    plan: basic-1gb # launch size; move to a pro plan for point-in-time recovery before real traffic
+    plan: free # demo only: Render deletes free databases after 30 days; upgrade before real traffic
     postgresMajorVersion: "16"
     ipAllowList: [] # private network only
